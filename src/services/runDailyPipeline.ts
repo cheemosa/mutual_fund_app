@@ -3,8 +3,8 @@ import { ingestDailyPrices } from "../scripts/ingestPrices";
 import { sendEmailReport } from "./sendEmailReport";
 
 export const main = async () => {
-  // await ingestDailyPrices();
-  // await generateDailySummary();
+  await ingestDailyPrices();
+  await generateDailySummary();
   await sendEmailReport();
 };
 
