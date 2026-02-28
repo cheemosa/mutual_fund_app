@@ -2,7 +2,7 @@ name: Daily MF Report
 
 on:
   schedule:
-    - cron: "0 6 ** 1-5" # 11:30AM IST (6:00 AM UTC) every weekday
+    - cron: "0 6 * * 1-5" # 11:30AM IST (6:00 AM UTC) every weekday
   workflow_dispatch:
 
 jobs:
