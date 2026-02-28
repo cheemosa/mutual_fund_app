@@ -1,0 +1,62 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MutualFund {
+  id String @id
+  name String
+
+  stocks Stock[]
+
+  summaries DailySummary[]
+}
+
+model Stock {
+  id String @id @default(cuid())
+  symbol String
+  weight Float
+  updatedAt DateTime
+
+  mutualFundId String
+  mutualFund MutualFund @relation(fields: [mutualFundId], references: [id])
+
+  movements StockMovement[]
+
+  @@unique([symbol, mutualFundId])
+}
+
+model StockMovement {
+  id String @id @default(cuid())
+  symbol String
+  price Float
+  change Float
+  createdAt DateTime @default(now())
+  
+  stockId String
+  stock Stock @relation(fields: [stockId], references: [id])
+}
+
+model DailySummary {
+  id String @id @default(cuid())
+  date DateTime
+  mutualFundId String
+  // raw weighted movement for the day e.g. -1.22
+  movement Float
+  // delta vs previous day's raw movement
+  movementVsYesterday Float
+  // cumulative movement over last 5 days
+  cumulativeMovement Float @default(0)
+  // structured AI output
+  sentiment String   // "bullish" | "bearish" | "neutral"
+  signal    String   // "good" | "avoid" | "watch"
+  reason    String   // short reason string
+  aiSummary String   // full summary prose
+  
+  invested Boolean @default(false)
+
+  mutualFund MutualFund @relation(fields:[mutualFundId], references: [id])
+}
