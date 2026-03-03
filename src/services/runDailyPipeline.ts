@@ -1,9 +1,15 @@
 import { prisma } from "../db/db";
 import { generateDailySummary } from "../scripts/generateDailySummary";
 import { ingestDailyPrices } from "../scripts/ingestPrices";
+import { isTodayHoliday } from "../utils/utils";
 import { sendEmailReport } from "./sendEmailReport";
 
 export const main = async () => {
+  const holidayInfo = isTodayHoliday();
+  if (holidayInfo.isHoliday) {
+    console.log(`Today is a holiday: ${holidayInfo.name}, skipping pipeline.`);
+    return;
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
