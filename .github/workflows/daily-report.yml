@@ -33,3 +33,4 @@ jobs:
           RESEND_API_KEY: ${{secrets.RESEND_API_KEY}}
           FROM_MAIL: ${{secrets.FROM_MAIL}}
           TO_MAIL: ${{secrets.TO_MAIL}}
+          TAVILY_API_KEY: ${{secrets.TAVILY_API_KEY}}
