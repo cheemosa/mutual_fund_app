@@ -1,5 +1,6 @@
 import { prisma } from "../db/db";
 import { mfInsightPrompt } from "../prompt/prompt";
+import { runResearchAgent } from "../services/researchAgent";
 import { calculateMfMovement } from "./calculateMfMovement";
 import { generateAISummary } from "./generateAISummary";
 
@@ -46,6 +47,12 @@ export const generateDailySummary = async () => {
       );
       console.log(`Generated summary for ${mf.mutualFundName}:`, aiSummary);
 
+      const research = await runResearchAgent(
+        mf.mutualFundName,
+        mf.topDraggers,
+      );
+      console.log(`Research agent output for ${mf.mutualFundName}:`, research);
+
       await prisma.dailySummary.create({
         data: {
           date: today,
@@ -58,6 +65,7 @@ export const generateDailySummary = async () => {
           reason: aiSummary.reason,
           aiSummary: aiSummary.summary,
           invested: false,
+          researchSummary: research.overallOutlook,
         },
       });
     }),

@@ -58,5 +58,8 @@ model DailySummary {
   
   invested Boolean @default(false)
 
+  // overall outlook from research agent
+  researchSummary String?
+
   mutualFund MutualFund @relation(fields:[mutualFundId], references: [id])
 }
