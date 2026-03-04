@@ -1,5 +1,6 @@
 import yahooFinance from "yahoo-finance2";
 import { prisma } from "../db/db.ts";
+import { MarketIndices } from "../types/types.ts";
 
 const yf = new yahooFinance();
 
@@ -43,4 +44,32 @@ export const ingestDailyPrices = async () => {
     }),
   );
   console.log("Finished processing all stocks.");
+};
+
+export const fetchMarketIndices = async (): Promise<MarketIndices> => {
+  try {
+    const [niftyQuote, sensexQuote] = await Promise.all([
+      yf.quote("^NSEI"),
+      yf.quote("^BSESN"),
+    ]);
+    console.log(
+      "Market Indices:",
+      niftyQuote.regularMarketChangePercent,
+      sensexQuote.regularMarketChangePercent,
+    );
+    return {
+      nifty: niftyQuote.regularMarketPrice ?? 0,
+      sensex: sensexQuote.regularMarketPrice ?? 0,
+      niftyChange: niftyQuote.regularMarketChangePercent ?? 0,
+      sensexChange: sensexQuote.regularMarketChangePercent ?? 0,
+    };
+  } catch (error) {
+    console.error("Error fetching market indices:", error);
+    return {
+      nifty: 0,
+      sensex: 0,
+      niftyChange: 0,
+      sensexChange: 0,
+    };
+  }
 };

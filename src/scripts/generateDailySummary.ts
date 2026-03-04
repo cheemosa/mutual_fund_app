@@ -3,9 +3,15 @@ import { mfInsightPrompt } from "../prompt/prompt";
 import { runResearchAgent } from "../services/researchAgent";
 import { calculateMfMovement } from "./calculateMfMovement";
 import { generateAISummary } from "./generateAISummary";
+import { fetchMarketIndices } from "./ingestPrices";
 
 export const generateDailySummary = async () => {
   const movements = await calculateMfMovement();
+  const indices = await fetchMarketIndices();
+
+  console.log(
+    `Market Indices - Nifty: (${indices.niftyChange.toFixed(2)}%), Sensex: (${indices.sensexChange.toFixed(2)}%)`,
+  );
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -34,6 +40,12 @@ export const generateDailySummary = async () => {
         0,
       );
       const cumulativeMovement = pastCumulativeMovement + mf.movement;
+      const research = await runResearchAgent(
+        mf.mutualFundName,
+        mf.topDraggers,
+      );
+
+      console.log(`Research agent output for ${mf.mutualFundName}:`, research);
       const aiSummary = await generateAISummary(
         mfInsightPrompt(
           mf.mutualFundName,
@@ -43,15 +55,11 @@ export const generateDailySummary = async () => {
           recentMovements,
           mf.topDraggers,
           mf.topContributors,
+          indices,
+          research
         ),
       );
       console.log(`Generated summary for ${mf.mutualFundName}:`, aiSummary);
-
-      const research = await runResearchAgent(
-        mf.mutualFundName,
-        mf.topDraggers,
-      );
-      console.log(`Research agent output for ${mf.mutualFundName}:`, research);
 
       await prisma.dailySummary.create({
         data: {

@@ -38,6 +38,24 @@ const fetchStockNews = async (symbol: string): Promise<string> => {
   }
 };
 
+const fetchMacroNews = async (): Promise<string> => {
+  try {
+    const result = await tavilyClient.search(
+      "India stock market today reason for fall rise NSE BSE",
+      {
+        searchDepth: "basic",
+        maxResults: 3,
+      },
+    );
+    return result.results
+      .map((r) => `- ${r.title}: ${r.content.slice(0, 200)}`)
+      .join("\n");
+  } catch (error) {
+    console.error("Error fetching macro news:", error);
+    return "No macro news available.";
+  }
+};
+
 const analyzeStock = async (
   symbol: string,
   contribution: number,
@@ -90,24 +108,28 @@ export const runResearchAgent = async (
   console.log(`Running research agent for ${mutualFundName}...`);
   const stockResearch: StockResearch[] = [];
 
+  const [macroNews, ...StockNewsResults] = await Promise.all([
+    fetchMacroNews(),
+    ...topDraggers.map((stock) => fetchStockNews(stock.symbol)),
+  ]);
+
+  console.log("Fetched macro news and stock news for research agent.");
+
   await Promise.all(
-    topDraggers.map(async (stock) => {
-      const news = await fetchStockNews(stock.symbol);
+    topDraggers.map(async (stock, index) => {
+      const news = StockNewsResults[index];
       const analysis = await analyzeStock(
         stock.symbol,
         stock.contribution,
         news,
       );
-
       stockResearch.push({
         symbol: stock.symbol,
         contribution: stock.contribution,
         news,
         outlook: analysis.outlook,
       });
-      console.log(
-        `Researched ${stock.symbol}: ${analysis.outlook} - ${analysis.summary}`,
-      );
+      console.log(`Researched ${stock.symbol}:`, analysis);
     }),
   );
 
@@ -123,10 +145,14 @@ export const runResearchAgent = async (
       {
         role: "user",
         content: `Fund: ${mutualFundName}
+
+        Broad market context today:
+        ${macroNews}
+
         Top draggers and their outlook:
         ${stockResearch.map((s) => `- ${s.symbol} (${s.contribution.toFixed(3)}%): ${s.outlook}`).join("\n")}
 
-        In 2-3 sentences, give an overall outlook on whether the fund's dip today appears to be a buying opportunity or a warning sign. Be specific and actionable.
+        In 2-3 sentences, give an overall outlook considering both the macro environment and individual stock movements. Clearly state whether the dip is macro-driven (broad market selloff), stock-specific, or a mix. Then say whether this is a buying opportunity (good time to invest) or a warning sign and why.
         `,
       },
     ],
