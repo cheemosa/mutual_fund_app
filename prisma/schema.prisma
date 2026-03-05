@@ -13,6 +13,7 @@ model MutualFund {
   stocks Stock[]
 
   summaries DailySummary[]
+  navEntries NavEntry[]
 }
 
 model Stock {
@@ -62,4 +63,18 @@ model DailySummary {
   researchSummary String?
 
   mutualFund MutualFund @relation(fields:[mutualFundId], references: [id])
+}
+
+model NavEntry {
+  id  String  @id @default(cuid())
+  date DateTime
+  mutualFundId String
+  nav Float
+  actualChange Float // actual % change vs previous day
+  estimatedChange Float // morning estimate
+  accuracy Float // difference between actual and estimated
+
+  mutualFund MutualFund @relation(fields: [mutualFundId], references: [id])
+
+  @@unique([mutualFundId, date])
 }

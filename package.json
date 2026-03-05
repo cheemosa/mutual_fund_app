@@ -5,6 +5,7 @@
   "scripts": {
     "dev:server": "npx tsx watch src/server.ts",
     "dev:pipeline": "npx tsx src/services/runDailyPipeline.ts",
+    "dev:nav": "npx tsx src/scripts/runNavIngestion.ts",
     "start": "npx tsx src/server.ts"
   },
   "keywords": [],
