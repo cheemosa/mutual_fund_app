@@ -65,6 +65,12 @@ Based on this data:
 - Identify the trend considering the broad market context and research findings
 - Give a short specific reason grounded in actual data
 - Give a sentiment: bullish, bearish, or neutral
+- Re-entry Analysis:
+  Looking at the last 5 days movement: ${recentMovements}
+  - If the fund has continued to dip after a previous dip, "yes" — good to invest more
+  - If the fund has recovered significantly after a dip, "no" — wait for next dip  
+  - If mixed signals, "partial" — invest a smaller amount than usual
+  - Provide a reentrySignal ("yes", "no", "partial") and a reentryReason explaining whether someone who already invested in the last 5 days should invest again today.
 - Give a clear investment timing signal:
   "good" = dip is macro/temporary driven, good entry point
   "avoid" = structural issues or fund overheated
@@ -76,6 +82,8 @@ Return ONLY valid JSON, no markdown, no explanation outside the JSON:
   "sentiment": "bullish" | "bearish" | "neutral",
    "signal": "good" | "avoid" | "watch",
    "reason": "one concise sentence grounded in market data and research findings",
+   "reentrySignal": "yes" | "no" | "partial",
+   "reentryReason": "one sentence explaining if someone who invested in last 5 days should invest more today",
    "summary":"2-3 sentence paragraph explaining the trend, research findings, and clear investment recommendation"
 }
 `;

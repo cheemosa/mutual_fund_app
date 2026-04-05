@@ -2,6 +2,8 @@ export type AISummaryType = {
   sentiment: string;
   signal: string;
   reason: string;
+  reentryReason: string;
+  reentrySignal: string;
   summary: string;
 };
 

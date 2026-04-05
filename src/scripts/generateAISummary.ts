@@ -17,6 +17,8 @@ const fallbackSummary: AISummaryType = {
   sentiment: "neutral",
   signal: "watch",
   reason: "Could not generate analysis",
+  reentryReason: "no",
+  reentrySignal: "Could not find a reason",
   summary: "Error generating summary, please check manually today",
 };
 
@@ -49,13 +51,16 @@ export const generateAISummary = async (
       !parsed.sentiment ||
       !parsed.signal ||
       !parsed.reason ||
-      !parsed.summary
+      !parsed.summary ||
+      !parsed.reentrySignal ||
+      !parsed.reentryReason
     ) {
       throw new Error("AI response missing required fields");
     }
 
     const validSignals = ["good", "avoid", "watch"];
     const validSentiments = ["bullish", "bearish", "neutral"];
+    const validReentrySignals = ["yes", "no", "partial"];
 
     if (!validSignals.includes(parsed.signal)) {
       throw new Error(`Unexpected signal value: ${parsed.signal}`);
@@ -64,11 +69,18 @@ export const generateAISummary = async (
     if (!validSentiments.includes(parsed.sentiment)) {
       throw new Error(`Unexpected sentiment value: ${parsed.sentiment}`);
     }
+    if (!validReentrySignals.includes(parsed.reentrySignal)) {
+      throw new Error(
+        `Unexpected reentry signal value: ${parsed.reentrySignal}`,
+      );
+    }
 
     return {
       sentiment: parsed.sentiment,
       signal: parsed.signal,
       reason: parsed.reason,
+      reentryReason: parsed.reentryReason,
+      reentrySignal: parsed.reentrySignal,
       summary: parsed.summary,
     };
   } catch (e) {

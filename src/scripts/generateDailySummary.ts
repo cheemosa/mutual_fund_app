@@ -56,7 +56,7 @@ export const generateDailySummary = async () => {
           mf.topDraggers,
           mf.topContributors,
           indices,
-          research
+          research,
         ),
       );
       console.log(`Generated summary for ${mf.mutualFundName}:`, aiSummary);
@@ -74,6 +74,8 @@ export const generateDailySummary = async () => {
           aiSummary: aiSummary.summary,
           invested: false,
           researchSummary: research.overallOutlook,
+          reentrySignal: aiSummary.reentrySignal,
+          reentryReason: aiSummary.reentryReason,
         },
       });
     }),

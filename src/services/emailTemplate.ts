@@ -6,8 +6,10 @@ interface SummaryWithFund {
   movementVsYesterday: number;
   cumulativeMovement: number;
   reason: string;
+  reentrySignal: string;
+  reentryReason: string;
   aiSummary: string;
-  researchSummary?: string;
+  researchSummary: string | null;
 }
 
 const signalConfig: Record<
@@ -50,6 +52,20 @@ const movementBg = (val: number) =>
   val > 0 ? "#d1fae5" : val < 0 ? "#fee2e2" : "#f3f4f6";
 
 const formatVal = (val: number) => `${val >= 0 ? "+" : ""}${val.toFixed(3)}%`;
+
+const reentryConfig: Record<
+  string,
+  { bg: string; color: string; label: string; emoji: string }
+> = {
+  yes: { bg: "#d1fae5", color: "#065f46", label: "Re-invest", emoji: "💰" },
+  no: { bg: "#fee2e2", color: "#7f1d1d", label: "Hold off", emoji: "✋" },
+  partial: {
+    bg: "#fef3c7",
+    color: "#78350f",
+    label: "Invest partially",
+    emoji: "⚖️",
+  },
+};
 
 export const generateEmailHtml = (
   summaries: SummaryWithFund[],
@@ -118,6 +134,18 @@ export const generateEmailHtml = (
           <p style="margin:0 0 2px;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;">Signal Reason</p>
           <p style="margin:0;font-family:'Georgia',serif;font-size:13px;color:#374151;line-height:1.5;">${s.reason}</p>
         </div>
+
+        ${(() => {
+          const re = reentryConfig[s.reentrySignal] ?? reentryConfig.partial;
+          return `
+      <div style="background:${re.bg};border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:16px;">${re.emoji}</span>
+        <div>
+          <p style="margin:0 0 2px;font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:${re.color};font-weight:700;">Re-entry Signal — ${re.label}</p>
+          <p style="margin:0;font-family:'Georgia',serif;font-size:13px;color:${re.color};line-height:1.5;">${s.reentryReason}</p>
+        </div>
+      </div>`;
+        })()}
 
         <!-- Summary -->
         <p style="margin:0;font-family:'Georgia',serif;font-size:13px;color:#6b7280;line-height:1.7;">${s.aiSummary}</p>
