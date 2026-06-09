@@ -38,7 +38,7 @@ const fetchStockNews = async (symbol: string): Promise<string> => {
   }
 };
 
-const fetchMacroNews = async (): Promise<string> => {
+export const fetchMacroNews = async (): Promise<string> => {
   try {
     const result = await tavilyClient.search(
       "India stock market today reason for fall rise NSE BSE",
@@ -104,20 +104,20 @@ const analyzeStock = async (
 export const runResearchAgent = async (
   mutualFundName: string,
   topDraggers: { symbol: string; contribution: number }[],
+  macroNews: string,
 ): Promise<FundResearch> => {
   console.log(`Running research agent for ${mutualFundName}...`);
   const stockResearch: StockResearch[] = [];
 
-  const [macroNews, ...StockNewsResults] = await Promise.all([
-    fetchMacroNews(),
-    ...topDraggers.map((stock) => fetchStockNews(stock.symbol)),
-  ]);
+  const stockNewsResults = await Promise.all(
+    topDraggers.map((stock) => fetchStockNews(stock.symbol)),
+  );
 
   console.log("Fetched macro news and stock news for research agent.");
 
   await Promise.all(
     topDraggers.map(async (stock, index) => {
-      const news = StockNewsResults[index];
+      const news = stockNewsResults[index];
       const analysis = await analyzeStock(
         stock.symbol,
         stock.contribution,

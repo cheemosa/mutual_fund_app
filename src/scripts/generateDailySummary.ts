@@ -1,6 +1,6 @@
 import { prisma } from "../db/db";
 import { mfInsightPrompt } from "../prompt/prompt";
-import { runResearchAgent } from "../services/researchAgent";
+import { fetchMacroNews, runResearchAgent } from "../services/researchAgent";
 import { calculateMfMovement } from "./calculateMfMovement";
 import { generateAISummary } from "./generateAISummary";
 import { fetchMarketIndices } from "./ingestPrices";
@@ -8,6 +8,7 @@ import { fetchMarketIndices } from "./ingestPrices";
 export const generateDailySummary = async () => {
   const movements = await calculateMfMovement();
   const indices = await fetchMarketIndices();
+  const macroNews = await fetchMacroNews();
 
   console.log(
     `Market Indices - Nifty: (${indices.niftyChange.toFixed(2)}%), Sensex: (${indices.sensexChange.toFixed(2)}%)`,
@@ -43,6 +44,7 @@ export const generateDailySummary = async () => {
       const research = await runResearchAgent(
         mf.mutualFundName,
         mf.topDraggers,
+        macroNews,
       );
 
       console.log(`Research agent output for ${mf.mutualFundName}:`, research);
